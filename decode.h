@@ -1,3 +1,4 @@
+// Prange's ISD
 double Prange(double k, double w, int HD_flag, double H1[], double MINvalues[32], double *T) {
 	if (w==0) {
         w = inverse(H1, 1-k);
@@ -8,6 +9,7 @@ double Prange(double k, double w, int HD_flag, double H1[], double MINvalues[32]
 	MINvalues[0]=k; MINvalues[1]=w;
 }
  
+ // BJMM(d) [BJMM12, MO15, BM17]
 double BJMMPlus(double k, double w, int d, int HD_flag, int NN_flag, int Naive_flag, double pmin, double pmax, double psteps, double lmin, double lmax, double lsteps, double emin[6], double emax[6], double esteps[6], double H1[], double MINvalues[32], double MINParams[20], double *T) {
      
     if (w==0) {
@@ -81,7 +83,7 @@ double BJMMPlus(double k, double w, int d, int HD_flag, int NN_flag, int Naive_f
 						MINParams[8] = eps[2];
 						MINParams[9] = eps[3];
 					}
-				} else printf("Invprob<0!!!!\n");
+				}// else printf("Invprob<0!!!!\n");
 			}
 			eps[d] = epsswap;
 		}
@@ -94,6 +96,7 @@ double BJMMPlus(double k, double w, int d, int HD_flag, int NN_flag, int Naive_f
  
 }
 	
+// Our Algorithm
 double NewV3(double k, double w, int d, int HD_flag, int Naive_flag, double pmin, double pmax, double psteps, double lmin[6], double lmax[6], double lsteps[6], double emin[6], double emax[6], double esteps[6], double dwmin[6][6], double dwmax[6][6], double dwsteps[6][6], double wwmin[6], double wwmax[6], double wwsteps[6], double H1[], double MINvalues[32], double MINParams[20], double *T) {
     
     if (w==0) {
@@ -189,7 +192,7 @@ double NewV3(double k, double w, int d, int HD_flag, int Naive_flag, double pmin
 					continue;
 				}
 				dw[1][0] = inverse(H1, dwsav) * (l[1]-ww[1]) + ww[1]/2;
-			} else printf("Wrong depth! \n");
+			}// else printf("Wrong depth! \n");
 
 			S[d] = H(H1,2*p[d]/k) * k/2;
 			S[d-1] = H(H1,p[d-1]/k) * k + (H(H1,dw[d-1][0]/l[d-1]) - 1) * l[d-1];
@@ -292,7 +295,7 @@ double NewV3(double k, double w, int d, int HD_flag, int Naive_flag, double pmin
     
 }
 
-// old
+// Our Algorithm, old variant
 double NewV2(double k, double w, int depth, int HD_flag, int Naive_flag, double pmin, double pmax, double psteps, double lmin[6], double lmax[6], double lsteps[6], double emin[6], double emax[6], double esteps[6], double dwmin[6][6], double dwmax[6][6], double dwsteps[6][6], double wwmin[6], double wwmax[6], double wwsteps[6], double H1[], double MINvalues[32], double MINParams[20], double *T) {
     
     if (w==0) {

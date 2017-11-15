@@ -7,8 +7,6 @@ int GLOBAL_STOP=0;
 #include "decode.h"
 #include <time.h>
 
-// same as v2, but dw[i][j] are set automatically to /2
-
 int main(int argc, char *argv[]) {
     // running time counter
     clock_t tStart = clock(), tRound;
@@ -16,7 +14,7 @@ int main(int argc, char *argv[]) {
 	FILE *file;
 	file = fopen("output.txt", "wb");
     
-    // Compute LUT for H
+    // Precompute H, H^-1
     static double H1[scale+1];
     for (int i=0; i<=scale; i++) {
         H1[i]=H_(i/(2*(double)scale));
@@ -24,7 +22,7 @@ int main(int argc, char *argv[]) {
     }
     
     // initialization
-    int depth = 0, cont_flag = 0, HD_flag = 0, Naive_flag = 0, Type_flag = 0, WorstCase_flag = 1, NN_flag = 1, LPN_flag = 0, McE_flag = 0, Precise_flag = 1;
+    int depth = 0, cont_flag = 0, HD_flag = 0, Naive_flag = 0, Type_flag = 0, WorstCase_flag = 1, NN_flag = 1, LPN_flag = 0, Precise_flag = 1;
     double pmin, pmax, psteps;
     double kmin, kmax, ksteps;
 	double wmin=0, wmax=0, wsteps=0.1;
@@ -44,6 +42,7 @@ int main(int argc, char *argv[]) {
     double Tmax=0.0, Tmin=1.0, MAXvalues[32], MINvalues[32], MINParams[20], MAXParams[20];
 	
 	// standard settings
+	Precise_flag = 1;
 	WorstCase_flag = 1;
 	HD_flag = 0;
 	Naive_flag = 0;
@@ -51,7 +50,6 @@ int main(int argc, char *argv[]) {
 	Type_flag = 2; // 0: Prange, 1: BJMM+, 2: BJMM v3
 	depth=2;
 	LPN_flag = 0;
-	McE_flag = 0;
 	LPN_k = 512;
 	LPN_t = 0.25;
 	ksteps=0.05, kmin=0.40, kmax=0.50;
@@ -100,9 +98,6 @@ int main(int argc, char *argv[]) {
 		if (strcmp(item[0], "LPN")==0) {
             LPN_flag = atoi(item[1]);
         }
-		if (strcmp(item[0], "McE")==0) {
-            McE_flag = atoi(item[1]);
-        }
 		if (strcmp(item[0], "LPNk")==0) {
             LPN_k = atoi(item[1]);
         }
@@ -124,10 +119,6 @@ int main(int argc, char *argv[]) {
     }
 	
 	//standard settings part 2
-	if (McE_flag == 1) {
-		if (wset==0) wmin=wmax=0.02;
-		if (kset==0) kmin=kmax=0.775;
-	}
 	if (WorstCase_flag == 0) Tmax=1.0;
 	if (LPN_flag == 1) {
 		Tmax *= LPN_k / kmin;
@@ -138,7 +129,7 @@ int main(int argc, char *argv[]) {
 	for (w=wmin; w<=wmax+wsteps*0.1; w+=wsteps) {
 	for (k=kmin; k<=kmax+ksteps*0.1; k+=ksteps) {
 		
-		// New v3
+		// Our algorithm
 		if (Type_flag==2) {
 			if (depth==2) {
 				pmin=0.00, pmax=0.06, psteps=0.01;
@@ -166,7 +157,8 @@ int main(int argc, char *argv[]) {
 				emin[2]=0.000, emax[2]=0.006, esteps[2]=0.001;
 				emin[3]=0.000, emax[3]=0.006, esteps[3]=0.001;
 			}
-		// BJMM-NN
+			
+		// BJMM(d)
 		} else if (Type_flag==1) {
 			if (depth==2) {
 				pmin=0.00, pmax=0.07, psteps=0.01;
@@ -189,6 +181,8 @@ int main(int argc, char *argv[]) {
 		printf("\n========\n w = %.4f k = %.4f \n========\n", w, k);
 		while (1) {
 			tRound = clock();
+			
+			// optimize parameters
 			if (Type_flag == 0) {
 				Prange(k,w,HD_flag,H1,MINvalues,&Tmin);
 			} else if (Type_flag == 1) {
@@ -198,6 +192,7 @@ int main(int argc, char *argv[]) {
 			}
 			printf("\nTime taken: %.2fs", (double)(clock() - tRound)/CLOCKS_PER_SEC);
 			
+			// print parameters
 			if (LPN_flag == 1) Tmin *= LPN_k / k;
 			printf("\nT:%f", Tmin);
 			if (Type_flag == 0) { // break if Prange
@@ -215,6 +210,7 @@ int main(int argc, char *argv[]) {
 				if (depth==4) printf("dw[3][2]=%.4f ", MINParams[10]);
 			}
 
+			// adjust parameter ranges
 			cont_flag = 0;
 			if (((int) round (pmin/psteps) != fmax(0,(int) round (MINParams[0]/psteps)-3)) || ((int) round (pmax/psteps) != (int) round (pmin/psteps)+6)) {
 				cont_flag = 1;
@@ -325,6 +321,8 @@ int main(int argc, char *argv[]) {
 			}
 			break;
 		}
+		
+		// save T
 		if (((WorstCase_flag == 1) && (Tmax < Tmin)) || ((WorstCase_flag == 0) && (Tmax > Tmin))) {
 			Tmax=Tmin;
 			for (int i=0; i<32; i++) MAXvalues[i]=MINvalues[i];
@@ -350,7 +348,11 @@ int main(int argc, char *argv[]) {
 		for(int i=0; i<=depth; i++) printf("p[%d]=%.6f ", i, MAXvalues[depth+2+i]);
 		for(int i=1; i<=depth; i++) printf("S[%d]=%.5f ", i, MAXvalues[2*depth+2+i]);
 		for(int i=1; i<=depth; i++) printf("C[%d]=%.5f ", i, MAXvalues[3*depth+2+i]);
-		printf("\nT=%.5f/%.5f (P=%.5f) \n", MAXvalues[4*depth+3], Tmax, MAXvalues[4*depth+4]);
+		if (LPN_flag==1) {
+			printf("\nT=%.5f/%.5f (P=%.5f) \n", Tmax, MAXvalues[4*depth+3], MAXvalues[4*depth+4]);
+		} else {
+			printf("\nT=%.5f (P=%.5f) \n", MAXvalues[4*depth+3], MAXvalues[4*depth+4]);
+		}
 		
 		printf("\n p[0]=%.4f ", MAXParams[0]);
 		printf("l=%.4f ", MAXParams[4]);
@@ -369,8 +371,12 @@ int main(int argc, char *argv[]) {
 		for(int i=1; i<=depth; i++) printf("S[%d]=%.5f ", i, MAXvalues[6*depth+i-4]);
 		for(int i=1; i<=depth; i++) printf("C[%d]=%.5f ", i, MAXvalues[7*depth+i-4]);
 		printf("\n");
-		printf("T=%.5f/%.5f (P=%.5f) \n", MAXvalues[8*depth-3], Tmax, MAXvalues[8*depth-2]);
-	
+		if (LPN_flag==1) {
+			printf("T=%.5f/%.5f (P=%.5f) \n", Tmax, MAXvalues[8*depth-3], MAXvalues[8*depth-2]);
+		} else {
+			printf("T=%.5f (P=%.5f) \n", MAXvalues[8*depth-3], MAXvalues[8*depth-2]);
+		}
+
 		printf("\n p[0]=%.4f ", MAXParams[0]);
 		for(int i=1; i<depth; i++) printf("w[%d]=%.4f ", i, MAXParams[i]);
 		for(int i=1; i<depth; i++) printf("l[%d]=%.4f ", i, MAXParams[3+i]);
