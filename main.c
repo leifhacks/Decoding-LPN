@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {
     // running time counter
     clock_t tStart = clock(), tRound;
 	srand(time(NULL));
-	FILE *file;
-	file = fopen("output.txt", "wb");
+	//FILE *file;
+	//file = fopen("output.txt", "wb");
     
     // Precompute H, H^-1
     static double H1[scale+1];
@@ -28,14 +28,12 @@ int main(int argc, char *argv[]) {
 	double wmin=0, wmax=0, wsteps=0.1;
     double emin[6], emax[6], esteps[6];
     for (int i=0;i<6;i++) {emin[i] = 0.0, emax[i] = 0.0, esteps[i] = 1.0;}
-    double dwmin[6][6], dwmax[6][6], dwsteps[6][6];
+    double wwmin[6][6], wwmax[6][6], wwsteps[6][6];
     for (int i=0;i<6;i++) {
 		for (int j=0;j<6;j++) {
-			dwmin[i][j] = 0.0, dwmax[i][j] = 0.0, dwsteps[i][j] = 1.0;
+			wwmin[i][j] = 0.0, wwmax[i][j] = 0.0, wwsteps[i][j] = 1.0;
 		}
 	}
-    double wwmin[6], wwmax[6], wwsteps[6];
-    for (int i=0;i<6;i++) {wwmin[i] = 0.0, wwmax[i] = 0.0, wwsteps[i] = 1.0;}
     double lmin[6], lmax[6], lsteps[6];
     for (int i=0;i<6;i++) {lmin[i] = 0.0, lmax[i] = 0.0, lsteps[i] = 1.0;}
     double k=0, w=0, LPN_k, LPN_t;
@@ -133,25 +131,25 @@ int main(int argc, char *argv[]) {
 		if (Type_flag==2) {
 			if (depth==2) {
 				pmin=0.00, pmax=0.06, psteps=0.01;
-				wwmin[1]=0.01, wwmax[1]=0.07, wwsteps[1]=0.01;
+				wwmin[1][0]=0.01, wwmax[1][0]=0.07, wwsteps[1][0]=0.01;
 				lmin[1]=0.13, lmax[1]=0.19, lsteps[1]=0.01;
 				emin[1]=0.004, emax[1]=0.010, esteps[1]=0.001;
 			} else if (depth==3) {
 				pmin=0.02, pmax=0.06, psteps=0.01;
-				wwmin[1]=0.01, wwmax[1]=0.05, wwsteps[1]=0.01;
-				wwmin[2]=0.01, wwmax[2]=0.05, wwsteps[2]=0.01;
-				lmin[1]=0.11, lmax[1]=0.15, lsteps[1]=0.01;
-				lmin[2]=0.03, lmax[2]=0.07, lsteps[2]=0.01;
+				wwmin[1][0]=0.01, wwmax[1][0]=0.05, wwsteps[1][0]=0.01;
+				wwmin[2][0]=0.01, wwmax[2][0]=0.05, wwsteps[2][0]=0.01;
+				lmin[1]=0.05, lmax[1]=0.11, lsteps[1]=0.01;
+				lmin[2]=0.02, lmax[2]=0.08, lsteps[2]=0.01;
 				emin[1]=0.001, emax[1]=0.005, esteps[1]=0.001;
 				emin[2]=0.001, emax[2]=0.005, esteps[2]=0.001;
 			} else if (depth==4) {
 				pmin=0.00, pmax=0.06, psteps=0.01;
-				wwmin[1]=0.00, wwmax[1]=0.06, wwsteps[1]=0.01;
-				wwmin[2]=0.00, wwmax[2]=0.06, wwsteps[2]=0.01;
-				wwmin[3]=0.00, wwmax[3]=0.06, wwsteps[3]=0.01;
-				dwmin[3][2]=0.00, dwmax[3][2]=0.06, dwsteps[3][2]=0.01;
-				lmin[1]=0.15, lmax[1]=0.21, lsteps[1]=0.01;
-				lmin[2]=0.05, lmax[2]=0.11, lsteps[2]=0.01;
+				wwmin[1][0]=0.00, wwmax[1][0]=0.06, wwsteps[1][0]=0.01;
+				wwmin[2][0]=0.00, wwmax[2][0]=0.06, wwsteps[2][0]=0.01;
+				wwmin[3][0]=0.00, wwmax[3][0]=0.06, wwsteps[3][0]=0.01;
+				wwmin[3][1]=0.00, wwmax[3][1]=0.06, wwsteps[3][1]=0.01;
+				lmin[1]=0.07, lmax[1]=0.13, lsteps[1]=0.01;
+				lmin[2]=0.02, lmax[2]=0.08, lsteps[2]=0.01;
 				lmin[3]=0.00, lmax[3]=0.06, lsteps[3]=0.01;
 				emin[1]=0.000, emax[1]=0.006, esteps[1]=0.001;
 				emin[2]=0.000, emax[2]=0.006, esteps[2]=0.001;
@@ -176,7 +174,19 @@ int main(int argc, char *argv[]) {
 				emin[2]=0.000, emax[2]=0.018, esteps[2]=0.001;
 				emin[3]=0.000, emax[3]=0.006, esteps[3]=0.001;
 			}
-		}		
+		}	
+		
+		// pmin=0.034, pmax=0.034, psteps=0.001;
+		// wwmin[1][0]=0.013, wwmax[1][0]=0.013, wwsteps[1][0]=0.001;
+		// wwmin[2][0]=0.010, wwmax[2][0]=0.010, wwsteps[2][0]=0.001;
+		// wwmin[3][0]=0.007, wwmax[3][0]=0.007, wwsteps[3][0]=0.001;
+		// wwmin[3][1]=0.0235, wwmax[3][1]=0.0235, wwsteps[3][1]=0.001;
+		// lmin[1]=0.096, lmax[1]=0.096, lsteps[1]=0.001;
+		// lmin[2]=0.054, lmax[2]=0.054, lsteps[2]=0.001;
+		// lmin[3]=0.038, lmax[3]=0.038, lsteps[3]=0.001;
+		// emin[1]=0.0029, emax[1]=0.0029, esteps[1]=0.0001;
+		// emin[2]=0.0005, emax[2]=0.0005, esteps[2]=0.0001;
+		// emin[3]=0.0003, emax[3]=0.0003, esteps[3]=0.0001;
 												 
 		printf("\n========\n w = %.4f k = %.4f \n========\n", w, k);
 		while (1) {
@@ -188,7 +198,7 @@ int main(int argc, char *argv[]) {
 			} else if (Type_flag == 1) {
 				BJMMPlus(k,w,depth,HD_flag,NN_flag,Naive_flag,pmin,pmax,psteps,lmin[1],lmax[1],lsteps[1],emin,emax,esteps,H1,MINvalues,MINParams,&Tmin);
 			} else if (Type_flag == 2) {
-				NewV3(k,w,depth,HD_flag,Naive_flag,pmin,pmax,psteps,lmin,lmax,lsteps,emin,emax,esteps,dwmin,dwmax,dwsteps,wwmin,wwmax,wwsteps,H1,MINvalues,MINParams,&Tmin);
+				NewV3(k,w,depth,HD_flag,Naive_flag,pmin,pmax,psteps,lmin,lmax,lsteps,emin,emax,esteps,wwmin,wwmax,wwsteps,H1,MINvalues,MINParams,&Tmin);
 			}
 			printf("\nTime taken: %.2fs", (double)(clock() - tRound)/CLOCKS_PER_SEC);
 			
@@ -207,9 +217,9 @@ int main(int argc, char *argv[]) {
 				for(int i=1; i<depth; i++) printf("w[%d]=%.4f ", i, MINParams[i]);
 				for(int i=1; i<depth; i++) printf("l[%d]=%.4f ", i, MINParams[3+i]);
 				for(int i=1; i<depth; i++) printf("e[%d]=%.5f ", i, MINParams[6+i]);			
-				if (depth==4) printf("dw[3][2]=%.4f ", MINParams[10]);
+				if (depth==4) printf("w[3][1]=%.4f ", MINParams[10]);
 			}
-
+//break;
 			// adjust parameter ranges
 			cont_flag = 0;
 			if (((int) round (pmin/psteps) != fmax(0,(int) round (MINParams[0]/psteps)-3)) || ((int) round (pmax/psteps) != (int) round (pmin/psteps)+6)) {
@@ -227,13 +237,13 @@ int main(int argc, char *argv[]) {
 					printf("l");
 				}
 				if (Type_flag == 1) continue;
-				if (((int) round (wwmin[i]/wwsteps[i]) != fmax(0,(int) round (MINParams[i]/wwsteps[i])-3)) || ((int) round (wwmax[i]/wwsteps[i]) != (int) round (wwmin[i]/wwsteps[i])+6)) {
+				if (((int) round (wwmin[i][0]/wwsteps[i][0]) != fmax(0,(int) round (MINParams[i]/wwsteps[i][0])-3)) || ((int) round (wwmax[i][0]/wwsteps[i][0]) != (int) round (wwmin[i][0]/wwsteps[i][0])+6)) {
 					cont_flag = 1;
 					printf("w");
 				}
 			}
 			if (Type_flag == 2 && depth==4) {
-				if (((int) round (dwmin[3][2]/dwsteps[3][2]) != fmax(0,(int) round (MINParams[10]/dwsteps[3][2])-3)) || ((int) round (dwmax[3][2]/dwsteps[3][2]) != (int) round (dwmin[3][2]/dwsteps[3][2])+6)) {
+				if (((int) round (wwmin[3][1]/wwsteps[3][1]) != fmax(0,(int) round (MINParams[10]/wwsteps[3][1])-3)) || ((int) round (wwmax[3][1]/wwsteps[3][1]) != (int) round (wwmin[3][2]/wwsteps[3][1])+6)) {
 					cont_flag = 1;
 					printf("d");
 				}
@@ -244,9 +254,9 @@ int main(int argc, char *argv[]) {
 					psteps *= 0.1;
 					cont_flag = 1;
 					printf("p+\n");
-				} else if (Type_flag == 2 && wwsteps[1] >= 0.01) {
+				} else if (Type_flag == 2 && wwsteps[1][0] >= 0.01) {
 					for(int i=1; i<depth; i++) {
-						wwsteps[i] *= 0.1;
+						wwsteps[i][0] *= 0.1;
 					}
 					cont_flag = 1;
 					printf("w+\n");
@@ -263,8 +273,8 @@ int main(int argc, char *argv[]) {
 					}
 					cont_flag = 1;
 					printf("e+\n");
-				} else if (Type_flag == 2 && depth==4 && dwsteps[3][2] >= 0.01) {
-					dwsteps[3][2] *= 0.1;
+				} else if (Type_flag == 2 && depth==4 && wwsteps[3][1] >= 0.01) {
+					wwsteps[3][1] *= 0.1;
 					cont_flag = 1;
 					printf("d+\n");
 				} else if (Precise_flag == 1) {
@@ -272,9 +282,9 @@ int main(int argc, char *argv[]) {
 						psteps *= 0.1;
 						cont_flag = 1;
 						printf("p+\n");
-					} else if (Type_flag == 2 && wwsteps[1] >= 0.001) {
+					} else if (Type_flag == 2 && wwsteps[1][0] >= 0.001) {
 						for(int i=1; i<depth; i++) {
-							wwsteps[i] *= 0.1;
+							wwsteps[i][0] *= 0.1;
 						}
 						cont_flag = 1;
 						printf("w+\n");
@@ -291,8 +301,8 @@ int main(int argc, char *argv[]) {
 						}
 						cont_flag = 1;
 						printf("e+\n");
-					} else if (Type_flag == 2 && depth==4 && dwsteps[3][2] >= 0.001) {
-						dwsteps[3][2] *= 0.1;
+					} else if (Type_flag == 2 && depth==4 && wwsteps[3][1] >= 0.001) {
+						wwsteps[3][2] *= 0.1;
 						cont_flag = 1;
 						printf("d+\n");
 					} 
@@ -309,13 +319,13 @@ int main(int argc, char *argv[]) {
 					lmin[i] = fmax(0,MINParams[3+i]-lsteps[i]*3);
 					lmax[i] = lmin[i]+lsteps[i]*6;
 					if (Type_flag == 1) continue;
-					wwmin[i] = fmax(0,MINParams[i]-wwsteps[i]*3);
-					wwmax[i] = wwmin[i]+wwsteps[i]*6;
+					wwmin[i][0] = fmax(0,MINParams[i]-wwsteps[i][0]*3);
+					wwmax[i][0] = wwmin[i][0]+wwsteps[i][0]*6;
 					
 				}
 				if (Type_flag == 2 && depth==4) {
-					dwmin[3][2] = fmax(0,MINParams[10]-dwsteps[3][2]*3);
-					dwmax[3][2] = dwmin[3][2]+dwsteps[3][2]*6;
+					wwmin[3][1] = fmax(0,MINParams[10]-wwsteps[3][1]*3);
+					wwmax[3][1] = wwmin[3][1]+wwsteps[3][1]*6;
 				}
 				continue;
 			}
@@ -328,11 +338,11 @@ int main(int argc, char *argv[]) {
 			for (int i=0; i<32; i++) MAXvalues[i]=MINvalues[i];
 			for (int i=0; i<20; i++) MAXParams[i]=MINParams[i];
 		} else;// break;
-		if (file != NULL) {
-			char x[23];
-			sprintf(x, "%.2f;%.5f;%3.5f\n", w, k, fabs(Tmin));
-			fwrite(x, sizeof(x), 1, file);
-		}
+		//if (file != NULL) {
+			//char x[23];
+			//sprintf(x, "%.2f;%.5f;%3.5f\n", w, k, fabs(Tmin));
+			//fwrite(x, sizeof(x), 1, file);
+		//}
 	}
 	}
 	
@@ -363,8 +373,8 @@ int main(int argc, char *argv[]) {
 		printf("k=%f w=%f \n", MAXvalues[0], MAXvalues[1]);
 		for(int i=1; i<depth; i++) printf("R[%d]=%.4f ", i, MAXvalues[2*depth+i-1]);
 		printf("\n");
-		for(int i=1; i<depth; i++) printf("dw[%d]=%.6f ", i, MAXvalues[3*depth+i-2]);
-		for(int i=2; i<depth; i++) printf("dw[%d][1]=%.6f ", i, MAXvalues[4*depth+i-4]);
+		for(int i=1; i<depth; i++) printf("w[%d][%d]=%.6f ", i, i, MAXvalues[3*depth+i-2]);
+		for(int i=2; i<depth; i++) printf("w[%d][%d]=%.6f ", i, i-1, MAXvalues[4*depth+i-4]);
 		printf("\n");
 		for(int i=1; i<=depth; i++) printf("p[%d]=%.6f ", i, MAXvalues[5*depth+i-4]);
 		printf("\n");
@@ -381,13 +391,13 @@ int main(int argc, char *argv[]) {
 		for(int i=1; i<depth; i++) printf("w[%d]=%.4f ", i, MAXParams[i]);
 		for(int i=1; i<depth; i++) printf("l[%d]=%.4f ", i, MAXParams[3+i]);
 		for(int i=1; i<depth; i++) printf("e[%d]=%.5f ", i, MAXParams[6+i]);
-		if (depth==4) printf("dw[3][2]=%.4f\n", MAXParams[10]);
+		if (depth==4) printf("w[3][1]=%.4f\n", MAXParams[10]);
     }
 	
     // Output time
     printf("\n Time taken: %.2fs\n\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
     
-	fclose(file);
+	//fclose(file);
     return 0;
 
 }

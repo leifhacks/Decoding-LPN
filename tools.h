@@ -8,11 +8,15 @@ double H_(double x) {
 
 // Binary Entropy Function, Precomputed
 double H(double H1[], double x) {
+	if (x!=x) {
+		GLOBAL_STOP=1;
+		return 0.0;
+	}
 	if (x<0.000001 && x > -0.000001) x = 0.0;
 	if (x>0.999999 && x < 1.000001) x = 1.0;
     if (x<0.0 || x>1.0) {
         //printf("-H Error %f-\n", x);
-		//GLOBAL_STOP=1;
+		GLOBAL_STOP=1;
         return 0.0;
     }
     if (x==0.0 || x==1.0) return 0;
@@ -44,7 +48,7 @@ double NN(double gamma, double lambda, double H1[], int Naive_flag, double *spac
 	
     if (gamma<0.0 || gamma>=0.5 || lambda<0.0) {
         //printf("-NN Error %f %f-\n", gamma, lambda);
-		//GLOBAL_STOP=1;
+		GLOBAL_STOP=1;
         return 2*lambda;
     }
     if (gamma==0.0) return lambda;
