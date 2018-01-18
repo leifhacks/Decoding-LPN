@@ -8,11 +8,13 @@ int GLOBAL_STOP=0;
 #include <time.h>
 
 int main(int argc, char *argv[]) {
+
     // running time counter
     clock_t tStart = clock(), tRound;
+	time_t tNow;
 	srand(time(NULL));
-	//FILE *file;
-	//file = fopen("output.txt", "wb");
+	FILE *file;
+	file = NULL;
     
     // Precompute H, H^-1
     static double H1[scale+1];
@@ -38,6 +40,11 @@ int main(int argc, char *argv[]) {
     for (int i=0;i<6;i++) {lmin[i] = 0.0, lmax[i] = 0.0, lsteps[i] = 1.0;}
     double k=0, w=0, LPN_k, LPN_t;
     double Tmax=0.0, Tmin=1.0, MAXvalues[32], MINvalues[32], MINParams[20], MAXParams[20];
+	for (int i=0;i<32;i++) MAXvalues[i] = 0;
+	for (int i=0;i<32;i++) MINvalues[i] = 0;
+	for (int i=0;i<20;i++) MINParams[i] = 0;
+	for (int i=0;i<20;i++) MAXParams[i] = 0;
+	char *filename;
 	
 	// standard settings
 	Precise_flag = 1;
@@ -52,6 +59,7 @@ int main(int argc, char *argv[]) {
 	LPN_t = 0.25;
 	ksteps=0.05, kmin=0.40, kmax=0.50;
 	wsteps=0.01	, wmin=0.00, wmax=0.00;
+	filename = "output.txt";
 	
 	// read input
 	int kset=0, wset=0;
@@ -114,9 +122,14 @@ int main(int argc, char *argv[]) {
             wsteps = atof(item[1]);
 			wset=1;
         }
+		if (strcmp(item[0], "Output")==0) {
+			filename = item[1];
+        }
     }
 	
 	//standard settings part 2
+	file = fopen(filename, "wb");
+	fclose(file);
 	if (WorstCase_flag == 0) Tmax=1.0;
 	if (LPN_flag == 1) {
 		Tmax *= LPN_k / kmin;
@@ -174,21 +187,26 @@ int main(int argc, char *argv[]) {
 				emin[2]=0.000, emax[2]=0.018, esteps[2]=0.001;
 				emin[3]=0.000, emax[3]=0.006, esteps[3]=0.001;
 			}
-		}	
+		}
 		
-		// pmin=0.034, pmax=0.034, psteps=0.001;
-		// wwmin[1][0]=0.013, wwmax[1][0]=0.013, wwsteps[1][0]=0.001;
-		// wwmin[2][0]=0.010, wwmax[2][0]=0.010, wwsteps[2][0]=0.001;
-		// wwmin[3][0]=0.007, wwmax[3][0]=0.007, wwsteps[3][0]=0.001;
-		// wwmin[3][1]=0.0235, wwmax[3][1]=0.0235, wwsteps[3][1]=0.001;
-		// lmin[1]=0.096, lmax[1]=0.096, lsteps[1]=0.001;
-		// lmin[2]=0.054, lmax[2]=0.054, lsteps[2]=0.001;
-		// lmin[3]=0.038, lmax[3]=0.038, lsteps[3]=0.001;
-		// emin[1]=0.0029, emax[1]=0.0029, esteps[1]=0.0001;
-		// emin[2]=0.0005, emax[2]=0.0005, esteps[2]=0.0001;
-		// emin[3]=0.0003, emax[3]=0.0003, esteps[3]=0.0001;
+		// T:74.255538 p[0]=0.0025 w[1]=0.0038 w[2]=0.0036 w[3]=0.0020 l[1]=0.0084 l[2]=0.0074 l[3]=0.0039 
+		//e[1]=0.00012 e[2]=0.00027 e[3]=0.00493 w[3][1]=0.0020 d+
+		// pmin=0.0025, pmax=0.0025, psteps=0.001;
+		// wwmin[1][0]=0.0038, wwmax[1][0]=0.0038, wwsteps[1][0]=0.001;
+		// wwmin[2][0]=0.0036, wwmax[2][0]=0.0036, wwsteps[2][0]=0.001;
+		// wwmin[3][0]=0.0020, wwmax[3][0]=0.0020, wwsteps[3][0]=0.001;
+		// wwmin[3][1]=0.0020, wwmax[3][1]=0.0020, wwsteps[3][1]=0.001;
+		// lmin[1]=0.0084, lmax[1]=0.0084, lsteps[1]=0.001;
+		// lmin[2]=0.0074, lmax[2]=0.0074, lsteps[2]=0.001;
+		// lmin[3]=0.0039, lmax[3]=0.0039, lsteps[3]=0.001;
+		// emin[1]=0.00012, emax[1]=0.00012, esteps[1]=0.0001;
+		// emin[2]=0.00027, emax[2]=0.00027, esteps[2]=0.0001;
+		// emin[3]=0.00493, emax[3]=0.00493, esteps[3]=0.0001;
 												 
-		printf("\n========\n w = %.4f k = %.4f \n========\n", w, k);
+		file = fopen(filename, "a+");
+		fprintf(file, "\n========\n w = %.4f k = %.4f \n========", w, k);
+		fclose(file);
+		printf("\n========\n w = %.4f k = %.4f \n========", w, k);
 		while (1) {
 			tRound = clock();
 			
@@ -200,23 +218,35 @@ int main(int argc, char *argv[]) {
 			} else if (Type_flag == 2) {
 				NewV3(k,w,depth,HD_flag,Naive_flag,pmin,pmax,psteps,lmin,lmax,lsteps,emin,emax,esteps,wwmin,wwmax,wwsteps,H1,MINvalues,MINParams,&Tmin);
 			}
-			printf("\nTime taken: %.2fs", (double)(clock() - tRound)/CLOCKS_PER_SEC);
-			
+			file = fopen(filename, "a+");
+			time(&tNow);
+			fprintf(file, "\n\n Time taken: %.2fs / %s", (double)(clock() - tRound)/CLOCKS_PER_SEC, asctime(localtime(&tNow)));
+			printf("\n\n Time taken: %.2fs / %s", (double)(clock() - tRound)/CLOCKS_PER_SEC, asctime(localtime(&tNow)));
 			// print parameters
 			if (LPN_flag == 1) Tmin *= LPN_k / k;
-			printf("\nT:%f", Tmin);
+			fprintf(file, "T:%f", Tmin);
+			printf("T:%f", Tmin);
+			fclose(file);
 			if (Type_flag == 0) { // break if Prange
 				break;
 			}
+			file = fopen(filename, "a+");
+			fprintf(file, " p[0]=%.4f ", MINParams[0]);
 			printf(" p[0]=%.4f ", MINParams[0]);
 			if (Type_flag == 1) {
+				fprintf(file, "l=%.4f ", MINParams[4]);
 				printf("l=%.4f ", MINParams[4]);
+				for(int i=1; i<depth; i++) fprintf(file, "e[%d]=%.5f ", i, MINParams[6+i]);
 				for(int i=1; i<depth; i++) printf("e[%d]=%.5f ", i, MINParams[6+i]);
 		
 			} else {
+				for(int i=1; i<depth; i++) fprintf(file, "w[%d]=%.4f ", i, MINParams[i]);
+				for(int i=1; i<depth; i++) fprintf(file, "l[%d]=%.4f ", i, MINParams[3+i]);
+				for(int i=1; i<depth; i++) fprintf(file, "e[%d]=%.5f ", i, MINParams[6+i]);			
 				for(int i=1; i<depth; i++) printf("w[%d]=%.4f ", i, MINParams[i]);
 				for(int i=1; i<depth; i++) printf("l[%d]=%.4f ", i, MINParams[3+i]);
 				for(int i=1; i<depth; i++) printf("e[%d]=%.5f ", i, MINParams[6+i]);			
+				if (depth==4) fprintf(file, "w[3][1]=%.4f ", MINParams[10]);
 				if (depth==4) printf("w[3][1]=%.4f ", MINParams[10]);
 			}
 //break;
@@ -224,27 +254,32 @@ int main(int argc, char *argv[]) {
 			cont_flag = 0;
 			if (((int) round (pmin/psteps) != fmax(0,(int) round (MINParams[0]/psteps)-3)) || ((int) round (pmax/psteps) != (int) round (pmin/psteps)+6)) {
 				cont_flag = 1;
+				fprintf(file, "p");
 				printf("p");
 			}
 			for(int i=1; i<depth; i++) {
 				if (((int) round (emin[i]/esteps[i]) != fmax(0,(int) round (MINParams[6+i]/esteps[i])-3)) || ((int) round (emax[i]/esteps[i]) != (int) round (emin[i]/esteps[i])+6)) {
 					cont_flag = 1;
+					fprintf(file, "e");
 					printf("e");
 				}
 				if (Type_flag == 1 && i > 1) continue;
 				if (((int) round (lmin[i]/lsteps[i]) != fmax(0,(int) round (MINParams[3+i]/lsteps[i])-3)) || ((int) round (lmax[i]/lsteps[i]) != (int) round (lmin[i]/lsteps[i])+6)) {
 					cont_flag = 1;
+					fprintf(file, "l");
 					printf("l");
 				}
 				if (Type_flag == 1) continue;
 				if (((int) round (wwmin[i][0]/wwsteps[i][0]) != fmax(0,(int) round (MINParams[i]/wwsteps[i][0])-3)) || ((int) round (wwmax[i][0]/wwsteps[i][0]) != (int) round (wwmin[i][0]/wwsteps[i][0])+6)) {
 					cont_flag = 1;
+					fprintf(file, "w");
 					printf("w");
 				}
 			}
 			if (Type_flag == 2 && depth==4) {
-				if (((int) round (wwmin[3][1]/wwsteps[3][1]) != fmax(0,(int) round (MINParams[10]/wwsteps[3][1])-3)) || ((int) round (wwmax[3][1]/wwsteps[3][1]) != (int) round (wwmin[3][2]/wwsteps[3][1])+6)) {
+				if (((int) round (wwmin[3][1]/wwsteps[3][1]) != fmax(0,(int) round (MINParams[10]/wwsteps[3][1])-3)) || ((int) round (wwmax[3][1]/wwsteps[3][1]) != (int) round (wwmin[3][1]/wwsteps[3][1])+6)) {
 					cont_flag = 1;
+					fprintf(file, "d");
 					printf("d");
 				}
 			}
@@ -253,62 +288,72 @@ int main(int argc, char *argv[]) {
 				if (psteps >= 0.01) {
 					psteps *= 0.1;
 					cont_flag = 1;
-					printf("p+\n");
+					fprintf(file, "p+");
+					printf("p+");
 				} else if (Type_flag == 2 && wwsteps[1][0] >= 0.01) {
 					for(int i=1; i<depth; i++) {
 						wwsteps[i][0] *= 0.1;
 					}
 					cont_flag = 1;
-					printf("w+\n");
+					fprintf(file, "w+");
+					printf("w+");
 				} else if (lsteps[1] >= 0.01) {
 					for(int i=1; i<depth; i++) {
 						lsteps[i] *= 0.1;
 						if (Type_flag == 1) break;
 					}
 					cont_flag = 1;
-					printf("l+\n");
+					fprintf(file, "l+");
+					printf("l+");
 				} else if (esteps[1] >= 0.001) {
 					for(int i=1; i<depth; i++) {
 						esteps[i] *= 0.1;
 					}
 					cont_flag = 1;
-					printf("e+\n");
+					fprintf(file, "e+");
+					printf("e+");
 				} else if (Type_flag == 2 && depth==4 && wwsteps[3][1] >= 0.01) {
 					wwsteps[3][1] *= 0.1;
 					cont_flag = 1;
-					printf("d+\n");
+					fprintf(file, "d+");
+					printf("d+");
 				} else if (Precise_flag == 1) {
 					if (psteps >= 0.001) {
 						psteps *= 0.1;
 						cont_flag = 1;
-						printf("p+\n");
+						fprintf(file, "p+");
+						printf("p+");
 					} else if (Type_flag == 2 && wwsteps[1][0] >= 0.001) {
 						for(int i=1; i<depth; i++) {
 							wwsteps[i][0] *= 0.1;
 						}
 						cont_flag = 1;
-						printf("w+\n");
+						fprintf(file, "w+");
+						printf("w+");
 					} else if (lsteps[1] >= 0.001) {
 						for(int i=1; i<depth; i++) {
 							lsteps[i] *= 0.1;
 							if (Type_flag == 1) break;
 						}
 						cont_flag = 1;
-						printf("l+\n");
+						fprintf(file, "l+");
+						printf("l+");
 					} else if (esteps[1] >= 0.0001) {
 						for(int i=1; i<depth; i++) {
 							esteps[i] *= 0.1;
 						}
 						cont_flag = 1;
-						printf("e+\n");
+						fprintf(file, "e+");
+						printf("e+");
 					} else if (Type_flag == 2 && depth==4 && wwsteps[3][1] >= 0.001) {
-						wwsteps[3][2] *= 0.1;
+						wwsteps[3][1] *= 0.1;
 						cont_flag = 1;
-						printf("d+\n");
+						fprintf(file, "d+");
+						printf("d+");
 					} 
 				}
 			}
-			
+			fclose(file);
 			if (cont_flag) {
 				pmin = fmax(0,MINParams[0]-psteps*3);
 				pmax = pmin+psteps*6;
@@ -338,21 +383,30 @@ int main(int argc, char *argv[]) {
 			for (int i=0; i<32; i++) MAXvalues[i]=MINvalues[i];
 			for (int i=0; i<20; i++) MAXParams[i]=MINParams[i];
 		} else;// break;
-		//if (file != NULL) {
-			//char x[23];
-			//sprintf(x, "%.2f;%.5f;%3.5f\n", w, k, fabs(Tmin));
-			//fwrite(x, sizeof(x), 1, file);
-		//}
 	}
 	}
 	
     // Output
+	file = fopen(filename, "a+");
 	if (Type_flag == 0) {
+		fprintf(file, "\n\nk=%f w=%f \n", MAXvalues[0], MAXvalues[1]);
+		fprintf(file, "T=%.5f \n", Tmax);
 		printf("\n\nk=%f w=%f \n", MAXvalues[0], MAXvalues[1]);
 		printf("T=%.5f \n", Tmax);
 		
 	} else if (Type_flag == 1) {
-		printf("\n=======\nTiefe %d: \n=======\n", depth);
+		fprintf(file, "\n\n=======\nDepth %d: \n=======\n", depth);
+		fprintf(file, " k=%f w=%f l=%.4f ", MAXvalues[0], MAXvalues[1], MAXvalues[2]);
+		for(int i=1; i<depth; i++) fprintf(file, "R[%d]=%.4f ", i, MAXvalues[i+2]);
+		for(int i=0; i<=depth; i++) fprintf(file, "p[%d]=%.6f ", i, MAXvalues[depth+2+i]);
+		for(int i=1; i<=depth; i++) fprintf(file, "S[%d]=%.5f ", i, MAXvalues[2*depth+2+i]);
+		for(int i=1; i<=depth; i++) fprintf(file, "C[%d]=%.5f ", i, MAXvalues[3*depth+2+i]);
+		if (LPN_flag==1) {
+			fprintf(file, "\nT=%.5f/%.5f (P=%.5f) \n", Tmax, MAXvalues[4*depth+3], MAXvalues[4*depth+4]);
+		} else {
+			fprintf(file, "\nT=%.5f (P=%.5f) \n", MAXvalues[4*depth+3], MAXvalues[4*depth+4]);
+		}
+		printf("\n\n=======\nDepth %d: \n=======\n", depth);
 		printf(" k=%f w=%f l=%.4f ", MAXvalues[0], MAXvalues[1], MAXvalues[2]);
 		for(int i=1; i<depth; i++) printf("R[%d]=%.4f ", i, MAXvalues[i+2]);
 		for(int i=0; i<=depth; i++) printf("p[%d]=%.6f ", i, MAXvalues[depth+2+i]);
@@ -364,12 +418,32 @@ int main(int argc, char *argv[]) {
 			printf("\nT=%.5f (P=%.5f) \n", MAXvalues[4*depth+3], MAXvalues[4*depth+4]);
 		}
 		
+		fprintf(file, "\n p[0]=%.4f ", MAXParams[0]);
+		fprintf(file, "l=%.4f ", MAXParams[4]);
+		for(int i=1; i<depth; i++) fprintf(file, "e[%d]=%.5f ", i, MAXParams[6+i]);
 		printf("\n p[0]=%.4f ", MAXParams[0]);
 		printf("l=%.4f ", MAXParams[4]);
 		for(int i=1; i<depth; i++) printf("e[%d]=%.5f ", i, MAXParams[6+i]);
 		
 	} else if (Type_flag == 2) {
-		printf("\n=======\nTiefe %d: \n=======\n", depth);
+		fprintf(file, "\n\n=======\nDepth %d: \n=======\n", depth);
+		fprintf(file, "k=%f w=%f \n", MAXvalues[0], MAXvalues[1]);
+		for(int i=1; i<depth; i++) fprintf(file, "R[%d]=%.4f ", i, MAXvalues[2*depth+i-1]);
+		fprintf(file, "\n");
+		for(int i=1; i<depth; i++) fprintf(file, "w[%d][%d]=%.6f ", i, i, MAXvalues[3*depth+i-2]);
+		for(int i=2; i<depth; i++) fprintf(file, "w[%d][%d]=%.6f ", i, i-1, MAXvalues[4*depth+i-4]);
+		fprintf(file, "\n");
+		for(int i=1; i<=depth; i++) fprintf(file, "p[%d]=%.6f ", i, MAXvalues[5*depth+i-4]);
+		fprintf(file, "\n");
+		for(int i=1; i<=depth; i++) fprintf(file, "S[%d]=%.5f ", i, MAXvalues[6*depth+i-4]);
+		for(int i=1; i<=depth; i++) fprintf(file, "C[%d]=%.5f ", i, MAXvalues[7*depth+i-4]);
+		fprintf(file, "\n");
+		if (LPN_flag==1) {
+			fprintf(file, "T=%.5f/%.5f (P=%.5f) \n", Tmax, MAXvalues[8*depth-3], MAXvalues[8*depth-2]);
+		} else {
+			fprintf(file, "T=%.5f (P=%.5f) \n", MAXvalues[8*depth-3], MAXvalues[8*depth-2]);
+		}
+		printf("\n\n=======\nDepth %d: \n=======\n", depth);
 		printf("k=%f w=%f \n", MAXvalues[0], MAXvalues[1]);
 		for(int i=1; i<depth; i++) printf("R[%d]=%.4f ", i, MAXvalues[2*depth+i-1]);
 		printf("\n");
@@ -387,6 +461,11 @@ int main(int argc, char *argv[]) {
 			printf("T=%.5f (P=%.5f) \n", MAXvalues[8*depth-3], MAXvalues[8*depth-2]);
 		}
 
+		fprintf(file, "\n p[0]=%.4f ", MAXParams[0]);
+		for(int i=1; i<depth; i++) fprintf(file, "w[%d]=%.4f ", i, MAXParams[i]);
+		for(int i=1; i<depth; i++) fprintf(file, "l[%d]=%.4f ", i, MAXParams[3+i]);
+		for(int i=1; i<depth; i++) fprintf(file, "e[%d]=%.5f ", i, MAXParams[6+i]);
+		if (depth==4) fprintf(file, "w[3][1]=%.4f\n", MAXParams[10]);
 		printf("\n p[0]=%.4f ", MAXParams[0]);
 		for(int i=1; i<depth; i++) printf("w[%d]=%.4f ", i, MAXParams[i]);
 		for(int i=1; i<depth; i++) printf("l[%d]=%.4f ", i, MAXParams[3+i]);
@@ -395,9 +474,9 @@ int main(int argc, char *argv[]) {
     }
 	
     // Output time
+	fprintf(file, "\n Time taken: %.2fs\n\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
     printf("\n Time taken: %.2fs\n\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
-    
-	//fclose(file);
+	fclose(file);
     return 0;
 
 }

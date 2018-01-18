@@ -13,7 +13,6 @@ This program is part of our paper
 "Decoding Linear Codes with High Error Rate and its Impact for LPN Security" 
 (https://eprint.iacr.org/2017/1139) . 
 Its purpose is to give estimates of the security for instances of the
-
  - syndrome decoding problem
  - LPN problem
 
@@ -53,7 +52,8 @@ wmin	// minimum error rate omega/n (Standard: 0.0)
 wmax	// maximum error rate omega/n (Standard: 0.0)
 wsteps	// every iteration wsteps is added to the error rate omega/n till wmax is reached (Standard: 0.01)
 
-Note: Do not set wmin, wmax if you want get running times for Full/Half Distance decoding as omega is set via the Gilbert Varshamov bound then.
+Note: Do not set wmin, wmax if you want get running times for Full/Half Distance decoding as omega is set 
+via the Gilbert Varshamov bound then.
 
 EXAMPLES
 -------------
@@ -77,11 +77,20 @@ k=0.460000 w=0.061867									// k/n and omega/n
 R[1]=0.0333												// # of representations on layer 1
 w[1][1]=0.001407											// w_1^(1) (only our algorithm)
 p[1]=0.008220 p[2]=0.004110								// p_1, p_2
-S[1]=0.02865 S[2]=0.02974 C[1]=0.03184 C[2]=0.03184		// S[i]: Size of lists in layer i, C[i]: running time for step i
-T=0.04871/0.04871 (P=0.01687)							// log(T) (only LPN), running time exponent c in 2^cn (Decoding) / 2^ck (LPN), # Iterations in outter loop (for good pi)
+S[1]=0.02865 S[2]=0.02974 C[1]=0.03184 C[2]=0.03184		// S[i]: Size of lists in layer i, C[i]: running 
+														// time for step i
+T=0.04871/0.04871 (P=0.01687)							// log(T) (only LPN), running time exponent c in 
+														// 2^cn (Decoding) / 2^ck (LPN), # Iterations in 
+														// outter loop (for good pi)
 
-p[0]=0.0116 w[1]=0.0015 l[1]=0.0396 e[1]=0.00242		// optimized parameters: p_0, w_1, l_1, e_1 = p_1/2-p_0
+p[0]=0.0116 w[1]=0.0015 l[1]=0.0396 e[1]=0.00242		// optimized parameters: p_0, w_1, l_1, 
+														// e_1 = p_1/2-p_0
 Time taken: 0.68s										// time for calculation
+
+Note that the notation for our algorithm in this program slightly differs from the one in our paper. The 
+algorithm in our paper starts with lists L_1^{(0)}...L_{2^m}^{(0)} resulting in a final list L^{(m)}. This 
+program enumerates the lists vice versa, i.e. starting with lists L_i^{(m)} and a final list L^{(0)}. 
+Therefore all variables are enumerated in a different order.
 
    
 AUTHORS

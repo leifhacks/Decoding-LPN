@@ -1,6 +1,5 @@
 #define scale 1000000
 
-
 // Binary Entropy Function
 double H_(double x) {
     return (-x*log(x)-(1-x)*log(1-x))/log(2);
@@ -27,6 +26,10 @@ double H(double H1[], double x) {
 // Inverse Binary Entropy Function, Precomputed
 double inverse(double H1[], double y) {
     int left=0, right=scale, mid;
+	if (y!=y) {
+		GLOBAL_STOP=1;
+		return 0.0;
+	}
     while(left < right-1) {
         mid= (left+right)/2;
         //printf("%d %d %d \n",left, right, mid);
@@ -42,6 +45,10 @@ double inverse(double H1[], double y) {
 // Nearest Neighbor
 double NN(double gamma, double lambda, double H1[], int Naive_flag, double *space) {
 	double res, AndreNN, AndreOPT;
+	if (gamma!=gamma || lambda!=lambda) {
+		GLOBAL_STOP=1;
+		return 0.0;
+	}
 	if (lambda<0.000001 && lambda > -0.000001) lambda = 0.0;
 	if (gamma<0.000001 && gamma > -0.000001) gamma = 0.0;
 	*space = fmax(*space, lambda);

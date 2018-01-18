@@ -184,7 +184,6 @@ double NewV3(double k, double w, int d, int HD_flag, int Naive_flag, double pmin
 			S[d-1] = H(H1,p[d-1]/k) * k + (H(H1,ww[d-1][d-1]/l[d-1]) - 1) * l[d-1];
 			if (S[d-1] < 0) continue;
 			check_c = 0;
-
 			for (int i=d-2; i>=1; i--) {
 				if (ww[i][i]/l[i]<0 || ww[i][i]/l[i]>1) {
 					check_c = 1;
@@ -206,7 +205,6 @@ double NewV3(double k, double w, int d, int HD_flag, int Naive_flag, double pmin
 				break;
 			}
 			if (check_c) continue;
-			
 			for (int i=2; i<=d; i++) {
 				if (l[i-1] == 0) {
 					C[i] = 2*S[i];
