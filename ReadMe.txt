@@ -40,7 +40,8 @@ NN		// 1=with Nearest Neighbor, 0=without.. (only BJMM, Standard= 1)
 Naive	// 0=with May-Ozerov Nearest Neighbor 1=without..	(only BJMM + Our algorithm, Standard: 0)
 m		// depth of the binary search tree (possible values: 2,3,4, Standard: 2)
 WC		// 1=Worst Case over all omega,k 0=Best Case over all omega,k (Standard: 1)
-Precise // 1=High Precision for paramerters, 2=Low Precision (only BJMM + Our algorithm, Standard: 1)
+Precise // 1=High Precision for parameters, 0=Low Precision (only BJMM + Our algorithm, Standard: 1)
+Single	// 1=check only one set of parameters
 LPN		// 1=LPN instance, 0= No LPN (Standard: 0)
 LPNk	// k for LPN (Standard: 512)
 LPNtau	// tau for LPN (Standard: 0.25)
@@ -51,6 +52,8 @@ ksteps	// every iteration ksteps is added to the code rate k/n till kmax is reac
 wmin	// minimum error rate omega/n (Standard: 0.0)
 wmax	// maximum error rate omega/n (Standard: 0.0)
 wsteps	// every iteration wsteps is added to the error rate omega/n till wmax is reached (Standard: 0.01)
+Space	// maximum space
+MMT		// enables MMT mode (i.e. e_i = 0.0);
 
 Note: Do not set wmin, wmax if you want get running times for Full/Half Distance decoding as omega is set 
 via the Gilbert Varshamov bound then.
